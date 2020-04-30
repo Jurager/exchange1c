@@ -50,6 +50,12 @@ class Config
         \Jurager\Exchange1C\Interfaces\OfferInterface::class   => null,
     ];
 
+    private $services = [
+        \Jurager\Exchange1C\Services\AuthService::class => null,
+    ];
+
+    private $merchant_id = null;
+
     /**
      * Config constructor.
      *
@@ -80,7 +86,7 @@ class Config
      */
     public function getImportDir(): string
     {
-        return $this->importDir;
+        return $this->merchant_id ? $this->importDir.DIRECTORY_SEPARATOR.$this->merchant_id : $this->importDir ;
     }
 
     /**
@@ -137,6 +143,15 @@ class Config
         return null;
     }
 
+    public function getServiceClass(string $serviceName): ?string
+    {
+        if (isset($this->services[$serviceName])) {
+            return $this->services[$serviceName];
+        }
+
+        return null;
+    }
+
     /**
      * @param string $filename
      *
@@ -161,5 +176,15 @@ class Config
         };
 
         return preg_replace_callback('/_([a-z])/', $func, $str);
+    }
+
+    public function setMerchant($merchant_id)
+    {
+        $this->merchant_id = (string)$merchant_id;
+    }
+
+    public function getMerchant() : ?string
+    {
+        return $this->merchant_id;
     }
 }

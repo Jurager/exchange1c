@@ -38,6 +38,8 @@ class AuthService
      */
     private $session;
 
+    private $merchant_id = null;
+
     /**
      * AuthService constructor.
      *
@@ -58,10 +60,17 @@ class AuthService
      */
     public function checkAuth()
     {
-        if (
-            $this->request->server->get('PHP_AUTH_USER') === $this->config->getLogin() &&
-            $this->request->server->get('PHP_AUTH_PW') === $this->config->getPassword()
-        ) {
+        if ($service = $this->config->getServiceClass(AuthService::class)) {
+            $service = new $service();
+            $arr = $service->checkAuth($this->request->server->get('PHP_AUTH_USER'), $this->request->server->get('PHP_AUTH_PW'));
+            $auth_valid = $arr->result;
+            $this->merchant_id = $arr->merchant_id;
+        } else {
+            $auth_valid = $this->request->server->get('PHP_AUTH_USER') === $this->config->getLogin() &&
+                $this->request->server->get('PHP_AUTH_PW') === $this->config->getPassword();
+        }
+
+        if ($auth_valid ) {
             $this->session->save();
             $response = "success\n";
             $response .= "laravel_session\n";
@@ -69,8 +78,10 @@ class AuthService
             $response .= 'timestamp='.time();
             if ($this->session instanceof SessionInterface) {
                 $this->session->set(self::SESSION_KEY.'_auth', $this->config->getLogin());
+                $this->session->set(self::SESSION_KEY.'_merchant', $this->merchant_id);
             } elseif ($this->session instanceof Session) {
                 $this->session->put(self::SESSION_KEY.'_auth', $this->config->getLogin());
+                $this->session->put(self::SESSION_KEY.'_merchant', $this->merchant_id);
             } else {
                 throw new Exchange1CException(sprintf('Session is not insatiable interface %s or %s', SessionInterface::class, Session::class));
             }
@@ -92,6 +103,8 @@ class AuthService
         if (!$user || $user != $login) {
             throw new Exchange1CException('auth error');
         }
+        $merchant_id = $this->session->get(self::SESSION_KEY.'_merchant', null);
+        $this->config->setMerchant($merchant_id);
     }
 
     private function setSession(): void

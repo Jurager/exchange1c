@@ -42,11 +42,6 @@ class CategoryService
     private $request;
 
     /**
-     * @var FileLoaderService
-     */
-    public $loaderService;
-
-    /**
      * @var Config
      */
     private $config;
@@ -90,7 +85,6 @@ class CategoryService
         $commerce->loadImportXml($this->config->getFullPath($filename));
         $classifierFile = $this->config->getFullPath('classifier.xml');
         if ($commerce->classifier->xml) {
-            $this->loaderService->clearImportDirectory();
             $commerce->classifier->xml->saveXML($classifierFile);
             if ($groupClass = $this->getGroupClass()) {
                 $groupClass::createTree1c($commerce->classifier->getGroups());
@@ -102,7 +96,7 @@ class CategoryService
             $productClass = $this->getProductClass();
 
             foreach ($commerce->catalog->getProducts() as $product) {
-                if (!$model = $productClass::createModel1c($product)) {
+                if (!$model = $productClass::createModel1c($product, $this->config->getMerchant())) {
                     throw new Exchange1CException("Модель продукта не найдена, проверьте реализацию $productClass::createModel1c");
                 }
                 $this->parseProduct($model, $product);
@@ -247,7 +241,7 @@ class CategoryService
 
     protected function afterProductsSync(): void
     {
-        $event = new AfterProductsSync($this->_ids);
+        $event = new AfterProductsSync($this->_ids, $this->config->getMerchant());
         $this->dispatcher->dispatch($event);
     }
 
@@ -271,7 +265,7 @@ class CategoryService
 
     public function afterComplete(): void
     {
-        $event = new AfterComplete();
+        $event = new AfterComplete($this->config->getMerchant());
         $this->dispatcher->dispatch($event);
     }
 }

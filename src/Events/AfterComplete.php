@@ -14,4 +14,17 @@ namespace Jurager\Exchange1C\Events;
 class AfterComplete extends AbstractEventInterface
 {
     const NAME = 'after.complete';
+
+    public $merchant_id;
+
+    /**
+     * AfterComplete constructor.
+     *
+     * @param string $merchant_id
+     */
+    public function __construct(string $merchant_id = null)
+    {
+        $this->merchant_id = $merchant_id;
+    }
+
 }

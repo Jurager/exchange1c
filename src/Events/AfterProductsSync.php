@@ -20,13 +20,17 @@ class AfterProductsSync extends AbstractEventInterface
      */
     public $ids;
 
+    public $merchant_id;
+
     /**
      * AfterProductsSync constructor.
      *
      * @param array $ids
+     * @param string $merchant_id
      */
-    public function __construct(array $ids = [])
+    public function __construct(array $ids = [], ?string $merchant_id = null)
     {
         $this->ids = $ids;
+        $this->merchant_id = $merchant_id;
     }
 }
