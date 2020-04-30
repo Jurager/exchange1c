@@ -109,10 +109,11 @@ interface ProductInterface extends IdentifierInterface
 
     /**
      * @param \Zenwalker\CommerceML\Model\Product $product
+     * @param string $merchant_id
      *
      * @return self
      */
-    public static function createModel1c($product);
+    public static function createModel1c($product, $merchant_id);
 
     /**
      * @param string $id

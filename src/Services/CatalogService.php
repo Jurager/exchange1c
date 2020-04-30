@@ -92,7 +92,6 @@ class CatalogService extends AbstractService
         $filename = $this->request->get('filename');
 
         if  (strpos($filename ,'import') !== false) {
-            $this->categoryService->loaderService = $this->loaderService;
             $this->categoryService->import();
         }
         if  (strpos($filename ,'price') !== false) {
@@ -123,6 +122,7 @@ class CatalogService extends AbstractService
     public function complete(): string
     {
         $this->authService->auth();
+        $this->loaderService->clearImportDirectory();
         $this->categoryService->afterComplete();
         $response = "success\n";
         $response .= "laravel_session\n";
