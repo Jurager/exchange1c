@@ -20,8 +20,9 @@ interface GroupInterface extends IdentifierInterface
      * $groups[0]->children - дочерние группы.
      *
      * @param \Zenwalker\CommerceML\Model\Group[] $groups
+     * @param string $merchant_id
      *
      * @return void
      */
-    public static function createTree1c($groups);
+    public static function createTree1c($groups, $merchant_id);
 }

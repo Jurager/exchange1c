@@ -13,4 +13,14 @@ namespace Jurager\Exchange1C\Interfaces;
 
 interface WarehouseInterface extends IdentifierInterface
 {
+    /**
+     * Создание списка складов
+     * в параметр передаётся массив всех сладов (import.xml > Классификатор > склады)
+     *
+     * @param \Zenwalker\CommerceML\Model\Warehouse[] $warehouses
+     * @param $merchant_id
+     *
+     * @return void
+     */
+    public static function createWarehouse1c($warehouses, $merchant_id);
 }
