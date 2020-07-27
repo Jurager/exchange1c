@@ -95,10 +95,11 @@ interface ProductInterface extends IdentifierInterface
      * import.xml > Классификатор > Свойства > Свойство > ВариантыЗначений > Справочник
      *
      * @param PropertyCollection $properties
+     * @param string $merchant_id
      *
      * @return mixed
      */
-    public static function createProperties1c($properties);
+    public static function createProperties1c($properties, $merchant_id);
 
     /**
      * @param \Zenwalker\CommerceML\Model\Offer $offer
