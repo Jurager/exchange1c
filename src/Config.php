@@ -42,6 +42,11 @@ class Config
     private $filePart = 0;
 
     /**
+     * @var int
+     */
+    private $productLimit = 0;
+
+    /**
      * @var array
      */
     private $models = [
@@ -119,6 +124,14 @@ class Config
     public function getFilePart(): int
     {
         return $this->filePart;
+    }
+
+    /**
+     * @return int
+     */
+    public function getProductLimit(): int
+    {
+        return $this->productLimit;
     }
 
     /**

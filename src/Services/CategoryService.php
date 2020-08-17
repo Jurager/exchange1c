@@ -88,7 +88,7 @@ class CategoryService
         $propertiesFile = $this->config->getFullPath('properties.xml');
 
         if ($commerce->classifier->xml) {
-            if ($commerce->classifier->xml->Свойства) {
+            /*if ($commerce->classifier->xml->Свойства) {
 
                 if ($productClass = $this->getProductClass()) {
                     $productClass::createProperties1c($commerce->classifier->getProperties(), $this->config->getMerchant());
@@ -118,27 +118,35 @@ class CategoryService
                     }
                 }
             } else {
-                if ($commerce->classifier->xml) {
-                    if ($warehouseClass = $this->getWarehouseClass()) {
-                        $warehouseClass::createWarehouse1c($commerce->classifier->getWarehouses(), $this->config->getMerchant());
-                    }
 
-                    if ($groupClass = $this->getGroupClass()) {
-                        $groupClass::createTree1c($commerce->classifier->getGroups(), $this->config->getMerchant());
-                    }
-                    $commerce->classifier->xml->saveXML($classifierFile);
+            }*/
+            if ($commerce->classifier->xml) {
+                if ($warehouseClass = $this->getWarehouseClass()) {
+                    $warehouseClass::createWarehouse1c($commerce->classifier->getWarehouses(), $this->config->getMerchant());
                 }
+
+                if ($groupClass = $this->getGroupClass()) {
+                    $groupClass::createTree1c($commerce->classifier->getGroups(), $this->config->getMerchant());
+                }
+                $commerce->classifier->xml->saveXML($classifierFile);
             }
+
         } else {
-            if (file_exists($propertiesFile)) {
+            /*if (file_exists($propertiesFile)) {
                 $properties = new CommerceML();
                 $properties->loadImportXml($propertiesFile);
                 $commerce->classifier->xml = $properties->classifier->xml;
-            }
+            }*/
             $this->beforeProductsSync();
             $productClass = $this->getProductClass();
+            
+            $products = $commerce->catalog->getProducts();
+            
+            if ($this->config->getProductLimit() > 0 && count($products) > $this->config->getProductLimit()) {
+                throw new Exchange1CException("Превышен лимит товаров в пакете");
+            }
 
-            foreach ($commerce->catalog->getProducts() as $product) {
+            foreach ($products as $product) {
                 $model = $productClass::createModel1c($product, $this->config->getMerchant());
                 if ($model === null) {
                     throw new Exchange1CException("Модель продукта не найдена, проверьте реализацию $productClass::createModel1c");
@@ -164,7 +172,13 @@ class CategoryService
 
         $productClass = $this->getProductClass();
 
-        foreach ($commerce->offerPackage->getOffers() as $offer) {
+        $offers = $commerce->offerPackage->getOffers();
+
+        if ($this->config->getProductLimit() > 0 && count($offers) > $this->config->getProductLimit()) {
+            throw new Exchange1CException("Превышен лимит товаров в пакете");
+        }
+
+        foreach ($offers as $offer) {
 
             $productId = $offer->getClearId();
 
@@ -188,7 +202,13 @@ class CategoryService
 
         $productClass = $this->getProductClass();
 
-        foreach ($commerce->offerPackage->getOffers() as $offer) {
+        $offers = $commerce->offerPackage->getOffers();
+
+        if ($this->config->getProductLimit() > 0 && count($offers) > $this->config->getProductLimit()) {
+            throw new Exchange1CException("Превышен лимит товаров в пакете");
+        }
+
+        foreach ($offers as $offer) {
 
             $productId = $offer->getClearId();
             $product = $productClass::findProductBy1c($productId);
@@ -234,9 +254,9 @@ class CategoryService
         $this->beforeUpdateProduct($model);
         $model->setRaw1cData($product->owner, $product);
         $this->parseGroups($model, $product);
-        $this->parseProperties($model, $product);
+        //$this->parseProperties($model, $product);
         $this->parseRequisites($model, $product);
-        $this->parseImage($model, $product);
+        //$this->parseImage($model, $product);
         $this->afterUpdateProduct($model);
 
         unset($group);
