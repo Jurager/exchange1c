@@ -42,17 +42,13 @@ class Config
     private $filePart = 0;
 
     /**
-     * @var int
-     */
-    private $productLimit = 0;
-
-    /**
      * @var array
      */
     private $models = [
         \Jurager\Exchange1C\Interfaces\GroupInterface::class   => null,
         \Jurager\Exchange1C\Interfaces\ProductInterface::class => null,
         \Jurager\Exchange1C\Interfaces\OfferInterface::class   => null,
+        \Jurager\Exchange1C\Interfaces\PriceTypeInterface::class   => null,
     ];
 
     private $services = [
@@ -124,14 +120,6 @@ class Config
     public function getFilePart(): int
     {
         return $this->filePart;
-    }
-
-    /**
-     * @return int
-     */
-    public function getProductLimit(): int
-    {
-        return $this->productLimit;
     }
 
     /**
