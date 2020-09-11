@@ -84,15 +84,15 @@ class CategoryService
 
         $commerce = new CommerceML();
         $commerce->loadImportXml($this->config->getFullPath($filename));
-        $classifierFile = $this->config->getFullPath('classifier.xml');
-        $propertiesFile = $this->config->getFullPath('properties.xml');
+        //$classifierFile = $this->config->getFullPath('classifier.xml');
+        //$propertiesFile = $this->config->getFullPath('properties.xml');
 
         if ($commerce->classifier->xml) {
-            /*if ($commerce->classifier->xml->Свойства) {
+            if ($commerce->classifier->xml->Свойства) {
 
                 if ($productClass = $this->getProductClass()) {
                     $productClass::createProperties1c($commerce->classifier->getProperties(), $this->config->getMerchant());
-                    if (!file_exists(($propertiesFile))) {
+                    /* if (!file_exists(($propertiesFile))) {
                         $commerce->importXml->saveXML($propertiesFile);
                     } else {
                         $propertiesXml = new \DOMDocument();
@@ -115,22 +115,24 @@ class CategoryService
                             }
                             $propertiesXml->save($propertiesFile);
                         }
-                    }
+                    }*/
                 }
             } else {
+                if ($commerce->classifier->xml) {
+                    if ($warehouseClass = $this->getWarehouseClass()) {
+                        $warehouseClass::createWarehouse1c($commerce->classifier->getWarehouses(), $this->config->getMerchant());
+                    }
 
-            }*/
-            if ($commerce->classifier->xml) {
-                if ($warehouseClass = $this->getWarehouseClass()) {
-                    $warehouseClass::createWarehouse1c($commerce->classifier->getWarehouses(), $this->config->getMerchant());
-                }
+                    if ($groupClass = $this->getGroupClass()) {
+                        $groupClass::createTree1c($commerce->classifier->getGroups(), $this->config->getMerchant());
+                    }
 
-                if ($groupClass = $this->getGroupClass()) {
-                    $groupClass::createTree1c($commerce->classifier->getGroups(), $this->config->getMerchant());
+                    if ($PriceTypeClass = $this->getPriceTypeClass()) {
+                        $PriceTypeClass::createPriceTypes1c($commerce->classifier->getPriceTypes(), $this->config->getMerchant());
+                    }
+                    //$commerce->classifier->xml->saveXML($classifierFile);
                 }
-                $commerce->classifier->xml->saveXML($classifierFile);
             }
-
         } else {
             /*if (file_exists($propertiesFile)) {
                 $properties = new CommerceML();
@@ -139,14 +141,8 @@ class CategoryService
             }*/
             $this->beforeProductsSync();
             $productClass = $this->getProductClass();
-            
-            $products = $commerce->catalog->getProducts();
-            
-            if ($this->config->getProductLimit() > 0 && count($products) > $this->config->getProductLimit()) {
-                throw new Exchange1CException("Превышен лимит товаров в пакете");
-            }
 
-            foreach ($products as $product) {
+            foreach ($commerce->catalog->getProducts() as $product) {
                 $model = $productClass::createModel1c($product, $this->config->getMerchant());
                 if ($model === null) {
                     throw new Exchange1CException("Модель продукта не найдена, проверьте реализацию $productClass::createModel1c");
@@ -172,21 +168,14 @@ class CategoryService
 
         $productClass = $this->getProductClass();
 
-        $offers = $commerce->offerPackage->getOffers();
-
-        if ($this->config->getProductLimit() > 0 && count($offers) > $this->config->getProductLimit()) {
-            throw new Exchange1CException("Превышен лимит товаров в пакете");
-        }
-
-        foreach ($offers as $offer) {
+        foreach ($commerce->offerPackage->getOffers() as $offer) {
 
             $productId = $offer->getClearId();
 
             $product = $productClass::findProductBy1c($productId);
             if ($product) {
-                foreach ($offer->getPrices() as $price) {
-                    $product->updatePrice1c($price);
-                }
+                $price = $offer->getPrices();
+                $product->updatePrice1c($price);
             }
             unset($product);
             gc_collect_cycles();
@@ -202,13 +191,7 @@ class CategoryService
 
         $productClass = $this->getProductClass();
 
-        $offers = $commerce->offerPackage->getOffers();
-
-        if ($this->config->getProductLimit() > 0 && count($offers) > $this->config->getProductLimit()) {
-            throw new Exchange1CException("Превышен лимит товаров в пакете");
-        }
-
-        foreach ($offers as $offer) {
+        foreach ($commerce->offerPackage->getOffers() as $offer) {
 
             $productId = $offer->getClearId();
             $product = $productClass::findProductBy1c($productId);
@@ -246,6 +229,14 @@ class CategoryService
     }
 
     /**
+     * @return PriceTypeInterface|null
+     */
+    protected function getPriceTypeClass(): ?PriceTypeInterface
+    {
+        return $this->modelBuilder->getInterfaceClass($this->config, PriceTypeInterface::class);
+    }
+
+    /**
      * @param ProductInterface                    $model
      * @param \Zenwalker\CommerceML\Model\Product $product
      */
@@ -256,7 +247,7 @@ class CategoryService
         $this->parseGroups($model, $product);
         //$this->parseProperties($model, $product);
         $this->parseRequisites($model, $product);
-        //$this->parseImage($model, $product);
+        $this->parseImage($model, $product);
         $this->afterUpdateProduct($model);
 
         unset($group);
