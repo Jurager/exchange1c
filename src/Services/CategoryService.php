@@ -23,6 +23,7 @@ use Jurager\Exchange1C\Interfaces\GroupInterface;
 use Jurager\Exchange1C\Interfaces\WarehouseInterface;
 use Jurager\Exchange1C\Interfaces\ModelBuilderInterface;
 use Jurager\Exchange1C\Interfaces\ProductInterface;
+use Jurager\Exchange1C\Interfaces\PriceTypeInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Zenwalker\CommerceML\CommerceML;
 use Zenwalker\CommerceML\Model\Product;
@@ -84,38 +85,12 @@ class CategoryService
 
         $commerce = new CommerceML();
         $commerce->loadImportXml($this->config->getFullPath($filename));
-        //$classifierFile = $this->config->getFullPath('classifier.xml');
-        //$propertiesFile = $this->config->getFullPath('properties.xml');
 
         if ($commerce->classifier->xml) {
             if ($commerce->classifier->xml->Свойства) {
 
                 if ($productClass = $this->getProductClass()) {
                     $productClass::createProperties1c($commerce->classifier->getProperties(), $this->config->getMerchant());
-                    /* if (!file_exists(($propertiesFile))) {
-                        $commerce->importXml->saveXML($propertiesFile);
-                    } else {
-                        $propertiesXml = new \DOMDocument();
-                        $propertiesXml->load($propertiesFile);
-
-                        $old_time = strtotime($propertiesXml->firstChild->getAttribute('ДатаФормирования'));
-
-                        $new_time = strtotime($commerce->importXml->attributes()['ДатаФормирования']->__toString());
-                        if ( $old_time < $new_time - 900 ) {
-                            $commerce->importXml->saveXML($propertiesFile);
-                        } else {
-                            $tmp = new \DOMDocument();
-                            $tmp->load($this->config->getFullPath($filename));
-
-                            foreach ($tmp->getElementsByTagName('Свойства')[0]->childNodes as $node) {
-                                if (get_class($node) == 'DOMElement') {
-                                    $node = $propertiesXml->importNode($node, true);
-                                    $propertiesXml->getElementsByTagName('Свойства')[0]->appendChild($node);
-                                }
-                            }
-                            $propertiesXml->save($propertiesFile);
-                        }
-                    }*/
                 }
             } else {
                 if ($commerce->classifier->xml) {
@@ -130,15 +105,9 @@ class CategoryService
                     if ($PriceTypeClass = $this->getPriceTypeClass()) {
                         $PriceTypeClass::createPriceTypes1c($commerce->classifier->getPriceTypes(), $this->config->getMerchant());
                     }
-                    //$commerce->classifier->xml->saveXML($classifierFile);
                 }
             }
         } else {
-            /*if (file_exists($propertiesFile)) {
-                $properties = new CommerceML();
-                $properties->loadImportXml($propertiesFile);
-                $commerce->classifier->xml = $properties->classifier->xml;
-            }*/
             $this->beforeProductsSync();
             $productClass = $this->getProductClass();
 
@@ -245,7 +214,7 @@ class CategoryService
         $this->beforeUpdateProduct($model);
         $model->setRaw1cData($product->owner, $product);
         $this->parseGroups($model, $product);
-        //$this->parseProperties($model, $product);
+        $this->parseProperties($model, $product);
         $this->parseRequisites($model, $product);
         $this->parseImage($model, $product);
         $this->afterUpdateProduct($model);
@@ -269,8 +238,9 @@ class CategoryService
      */
     protected function parseProperties(ProductInterface $model, Product $product): void
     {
-        foreach ($product->getProperties() as $property) {
-            $model->setProperty1c($property);
+        $properties = $product->getProperties();
+        foreach ($properties as $property) {
+            $model->setProperty1c($property->id, $property->value);
         }
     }
 

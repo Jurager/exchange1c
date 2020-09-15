@@ -68,11 +68,12 @@ interface ProductInterface extends IdentifierInterface
      * import.xml > Классификатор > Свойства > Свойство > ВариантыЗначений > Справочник
      * $property->getValueModel() - Данные по значению, Ид значения, и т.д
      *
-     * @param \Zenwalker\CommerceML\Model\Property $property
+     * @param string $property_id
+     * @param string $value
      *
      * @return void
      */
-    public function setProperty1c($property);
+    public function setProperty1c($property_id, $value);
 
     /**
      * @param string $path
