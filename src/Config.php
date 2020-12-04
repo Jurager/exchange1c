@@ -24,6 +24,11 @@ class Config
     /**
      * @var string
      */
+    private $sessionName = 'laravel_session';
+
+    /**
+     * @var string
+     */
     private $login = 'admin';
 
     /**
@@ -93,9 +98,22 @@ class Config
     /**
      * @return string
      */
+    public function getSessionName(): string
+    {
+        return $this->sessionName;
+    }
+
+    /**
+     * @return string
+     */
     public function getLogin(): string
     {
         return $this->login;
+    }
+    
+    public function setLogin($login): void
+    {
+        $this->login = $login;
     }
 
     /**

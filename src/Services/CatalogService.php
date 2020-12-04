@@ -102,7 +102,7 @@ class CatalogService extends AbstractService
         }
 
         $response = "success\n";
-        $response .= "laravel_session\n";
+        $response .= $this->config->getSessionName()."\n";
         $response .= $this->request->getSession()->getId()."\n";
         $response .= 'timestamp='.time();
 
@@ -113,7 +113,7 @@ class CatalogService extends AbstractService
     {
         $this->authService->auth();
         $response = "success\n";
-        $response .= "laravel_session\n";
+        $response .= $this->config->getSessionName()."\n";
         $response .= $this->request->getSession()->getId()."\n";
         $response .= 'timestamp='.time();
 
@@ -122,10 +122,10 @@ class CatalogService extends AbstractService
     public function complete(): string
     {
         $this->authService->auth();
-        $this->loaderService->clearImportDirectory();
+        //$this->loaderService->clearImportDirectory();
         $this->categoryService->afterComplete();
         $response = "success\n";
-        $response .= "laravel_session\n";
+        $response .= $this->config->getSessionName()."\n";
         $response .= $this->request->getSession()->getId()."\n";
         $response .= 'timestamp='.time();
 

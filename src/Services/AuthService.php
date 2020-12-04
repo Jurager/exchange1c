@@ -73,7 +73,7 @@ class AuthService
         if ($auth_valid ) {
             $this->session->save();
             $response = "success\n";
-            $response .= "laravel_session\n";
+            $response .= $this->config->getSessionName()."\n";
             $response .= $this->session->getId()."\n";
             $response .= 'timestamp='.time();
             if ($this->session instanceof SessionInterface) {
